@@ -1,5 +1,8 @@
 #![allow(dead_code)]
 #![allow(unreachable_patterns)]
+#![feature(async_fn_in_trait)]
+#![feature(maybe_uninit_array_assume_init)]
+#![feature(maybe_uninit_uninit_array)]
 
 use std::fmt::Debug;
 use std::sync::Arc;
