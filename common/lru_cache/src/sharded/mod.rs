@@ -347,4 +347,45 @@ mod test {
         ct.insert(1, 100);
         assert_eq!(ct.get_or_default(1), -1);
     }
+
+    #[test]
+    fn test_shared_cache() {
+        #[derive(Debug)]
+        struct DropPrint {
+            v: Box<u32>
+        }
+
+        impl From<u32> for DropPrint {
+            fn from(value: u32) -> Self {
+                Self {
+                    v: value.into()
+                }
+            }
+        }
+
+        impl Drop for DropPrint {
+            fn drop(&mut self) {
+                println!("drop: {}", self.v);
+            }
+        }
+        let cache: ShardedCache<&str, DropPrint> = ShardedCache::with_capacity(1);
+        let one = cache.insert("one", 1.into());
+        let two = cache.insert("two", 2.into());
+        let three = cache.insert("three", 3.into());
+        let four = cache.insert("four", 4.into());
+        let five = cache.insert("five", 5.into());
+        let six = cache.insert("six", 6.into());
+        let seven = cache.insert("seven", 7.into());
+        let eight = cache.insert("eight", 8.into());
+        let nine = cache.insert("nine", 9.into());
+        debug_assert_eq!(1, *one.unwrap().v);
+        debug_assert_eq!(2, *two.unwrap().v);
+        debug_assert_eq!(3, *three.unwrap().v);
+        debug_assert_eq!(4, *four.unwrap().v);
+        debug_assert_eq!(5, *five.unwrap().v);
+        debug_assert_eq!(6, *six.unwrap().v);
+        debug_assert_eq!(7, *seven.unwrap().v);
+        debug_assert_eq!(8, *eight.unwrap().v);
+        debug_assert_eq!(9, *nine.unwrap().v);
+    }
 }

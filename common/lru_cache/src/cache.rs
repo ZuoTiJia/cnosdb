@@ -478,4 +478,34 @@ mod test {
         assert_eq!(lru.get(&"Two"), Some(&2));
         assert_eq!(lru.get(&"One"), None);
     }
+    #[test]
+    fn test_cache_get_mut() {
+        #[derive(Debug)]
+        struct DropPrint {
+            v: Box<u32>
+        }
+
+        impl From<u32> for DropPrint {
+            fn from(value: u32) -> Self {
+                Self {
+                    v: value.into()
+                }
+            }
+        }
+
+        impl Drop for DropPrint {
+            fn drop(&mut self) {
+                println!("drop: {}", self.v);
+            }
+        }
+
+        let mut lru: Cache<&str, DropPrint> = Cache::with_capacity(1);
+        let one = lru.insert_and_return_value("one", 1.into(), 1, None);
+        let two = lru.insert_and_return_value("two", 2.into(), 1, None);
+        let three = lru.insert_and_return_value("three", 3.into(), 1, None);
+
+        println!("usage: {}", lru.usage);
+        println!("{:#?}", unsafe { &(*one.unwrap()) }.v);
+        println!("{:#?}", unsafe { &(*two.unwrap()) }.v);
+    }
 }
